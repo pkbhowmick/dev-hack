@@ -4,9 +4,10 @@
 
 - `localhost:8084/`
 
-## API Endpoints with examples
+## API Endpoints with examples also with Observability details
 
 - `GET /` (Service's HealthCheck endpoint):
+
   - Request URL: `localhost:8084/`
   - Response:
     ```
@@ -15,7 +16,11 @@
         "serviceName": "GatewayService"
     }
     ```
+  - Observability:
+    - it doesn't have any tracing or etc. because it's not necessary and taking decision which things to trace is most important
+
 - `POST /signup` (SignUp endpoint):
+
   - Request URL: `localhost:8084/signup`
   - Request Body:
     ```
@@ -32,6 +37,11 @@
         "message": "Successfully Signed Up!"
     }
     ```
+  - Observability:
+    - It stores the successful user creation to mongodb for future analytics purpose
+    - we added tracing to all the important componenet
+    - it uses mysql db for user data storing, as we assumed our userbase is gonna be small but the read operation (to verify whether there's a user or not) is more thus we used mysql for optimal read operation heavy db
+
 - `GET /users/:userId/products` (Get the products of that user):
   - Request URL: `localhost:8085/users/640cebcb-cd27-4dff-86cb-c951e2d65828/products`
   - Response:
@@ -49,6 +59,9 @@
         }
     }
     ```
+  - Observability:
+    - It usages postgresql db as it can have both write heavy operations
+    - Here we used distributed tracing by context propagation and called another different service
 - `POST /users/:userId/products` (Create a product by that user):
   - Request URL: `localhost:8085/users/:userId/products`
   - Request Body:
