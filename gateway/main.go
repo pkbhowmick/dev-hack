@@ -21,6 +21,7 @@ import (
 
 	"github.com/pkbhowmick/dev-hack/gateway/middleware"
 	"github.com/pkbhowmick/dev-hack/gateway/presenter/healthcheck"
+	"github.com/pkbhowmick/dev-hack/gateway/pubsub"
 )
 
 type TraceConfig struct {
@@ -117,6 +118,14 @@ func run() error {
 	return server.ListenAndServe()
 }
 
+func productHandler(c *gin.Context) {
+	if err := pubsub.SendMessage(c.Request.Context(), []byte("Hello World!")); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
+}
+
 func newServer() (*http.Server, error) {
 	// c, err := newDIContainer()
 	// if err != nil {
@@ -126,6 +135,7 @@ func newServer() (*http.Server, error) {
 	// gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.GET("/", middleware.AddTracing("healthHandler", "healthSpan"), healthcheck.Handler())
+	r.POST("/product", middleware.AddTracing("gatewayHandler", "gatewaySpan"), productHandler)
 
 	// err = c.Invoke(func(
 	// 	signupuc *signupuc.Usecase,

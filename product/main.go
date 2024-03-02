@@ -21,6 +21,7 @@ import (
 
 	"github.com/pkbhowmick/dev-hack/product/middleware"
 	"github.com/pkbhowmick/dev-hack/product/presenter/healthcheck"
+	"github.com/pkbhowmick/dev-hack/product/pubsub"
 )
 
 type TraceConfig struct {
@@ -109,6 +110,12 @@ func main() {
 }
 
 func run() error {
+	go func() {
+		if err := pubsub.ListenForMessage(); err != nil {
+			slog.Error(err.Error())
+		}
+	}()
+
 	server, err := newServer()
 	if err != nil {
 		return err
