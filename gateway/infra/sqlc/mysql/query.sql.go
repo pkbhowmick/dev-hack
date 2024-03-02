@@ -45,7 +45,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id string) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, email, password, is_admin, created_at, updated_at FROM users
+SELECT id, name, email, password, created_at, updated_at FROM users
 WHERE email = ?
 `
 
@@ -57,7 +57,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Name,
 		&i.Email,
 		&i.Password,
-		&i.IsAdmin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -65,7 +64,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, name, email, password, is_admin, created_at, updated_at FROM users
+SELECT id, name, email, password, created_at, updated_at FROM users
 WHERE id = ?
 `
 
@@ -77,7 +76,6 @@ func (q *Queries) GetUserById(ctx context.Context, id string) (User, error) {
 		&i.Name,
 		&i.Email,
 		&i.Password,
-		&i.IsAdmin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -85,7 +83,7 @@ func (q *Queries) GetUserById(ctx context.Context, id string) (User, error) {
 }
 
 const getUserByName = `-- name: GetUserByName :one
-SELECT id, name, email, password, is_admin, created_at, updated_at FROM users
+SELECT id, name, email, password, created_at, updated_at FROM users
 WHERE name = ?
 `
 
@@ -97,7 +95,6 @@ func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) 
 		&i.Name,
 		&i.Email,
 		&i.Password,
-		&i.IsAdmin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -105,7 +102,7 @@ func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) 
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, name, email, password, is_admin, created_at, updated_at FROM users
+SELECT id, name, email, password, created_at, updated_at FROM users
 `
 
 func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
@@ -122,7 +119,6 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 			&i.Name,
 			&i.Email,
 			&i.Password,
-			&i.IsAdmin,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

@@ -54,7 +54,7 @@ In this `dev-hack` monorepo we'll demonstrate Golang based microservices followi
 #### Mysql
 
 - `cd schemas`
-- `export MYSQL_URL='mysql://devhack:devhack123@localhost:3306/devhackdb?multiStatements=true'`
+- `export MYSQL_URL='mysql://devhack:devhack123@tcp(127.0.0.1:3306)/devhackdb'`
 - `migrate -database ${MYSQL_URL} -path db/mysql/migrations up`
 
 [🎉] now the projects setup is successful, for checking the API endpoints of each service pls have a look into each service's README.md file and test those endpoints from `postman` or etc.
