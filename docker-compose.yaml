@@ -36,6 +36,15 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongouser
+      MONGO_INITDB_ROOT_PASSWORD: mongopassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./schemas/local-data/db/mongodb:/data/db
   gateway:
     build:
       context: gateway
