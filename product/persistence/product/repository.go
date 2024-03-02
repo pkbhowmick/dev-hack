@@ -2,6 +2,8 @@ package users
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/pkbhowmick/dev-hack/product/domain/product"
@@ -18,6 +20,9 @@ func NewRepository(db *sqlcdb.Queries) *Repository {
 
 func (r *Repository) GetAllProductsByUserId(ctx context.Context, userId string) ([]sqlcdb.Product, error) {
 	products, err := r.DB.GetProductsByUserId(ctx, userId)
+	if err == sql.ErrNoRows {
+		return nil, errors.New("user doesn't exist")
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -28,6 +33,7 @@ func (r *Repository) GetAllProductsByUserId(ctx context.Context, userId string) 
 func (r *Repository) Create(ctx context.Context, opts *product.CreationOptions) (string, error) {
 	arg := sqlcdb.CreateProductParams{
 		ID:          uuid.NewString(),
+		UserID:      opts.UserId,
 		Name:        opts.Name,
 		Price:       int32(opts.Price),
 		Description: opts.Description,
