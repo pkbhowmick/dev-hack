@@ -12,7 +12,7 @@
     ```
     {
         "ok": true,
-        "serviceName": "AuthService"
+        "serviceName": "GatewayService"
     }
     ```
 - `POST /signup` (SignUp endpoint):
@@ -44,7 +44,6 @@
             "name": "demo",
             "email": "demo@gmail.com",
             "password": "$2a$10$lMRv0ZvYVCmhac4DkiLqQuItC1XEmqclPyEhLavVHaai9XJ0QcG6G",
-            "isAdmin": false,
             "createdAt": "2023-02-18T20:21:40.404Z",
             "updatedAt": "2023-02-18T20:21:40.404Z"
         }

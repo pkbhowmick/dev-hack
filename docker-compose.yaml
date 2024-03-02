@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  db:
+  postgresdb:
     container_name: devhackdb
     image: postgres:13
     environment:
@@ -16,34 +16,43 @@ services:
       - "5432"
     volumes:
       - ./schemas/local-data/db/devhackdb:/var/lib/postgresql/data
-  auth:
+  mysqldb:
+    container_name: devhackdbmysql
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: devhackdb
+      MYSQL_USER: devhack
+      MYSQL_PASSWORD: devhack123
+    ports:
+      - 3306:3306
+    networks:
+      - default
+    expose:
+      - "3306"
+    volumes:
+      - ./schemas/local-data/db/devhackmysql:/var/lib/mysql
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+  gateway:
     build:
-      context: auth
+      context: gateway
       dockerfile: docker/Dockerfile
     ports:
       - 8084:8080
     environment:
-      DATABASE_URL: postgresql://devhack:devhack123@devhackdb:5432/devhackdb?sslmode=disable
-      SECRET_KEY: supersecretkey123
+      MYSQL_DATABASE_URL: devhack:devhack123@tcp(host.docker.internal:3306)/devhackdb
     depends_on:
-      - db
-  ecom:
+      - mysqldb
+  product:
     build:
-      context: ecom
+      context: product
       dockerfile: docker/Dockerfile
     ports:
       - 8085:8080
     environment:
-      DATABASE_URL: postgresql://devhack:devhack123@devhackdb:5432/devhackdb?sslmode=disable
+      POSTGRESQL_DATABASE_URL: postgresql://devhack:devhack123@devhackdb:5432/devhackdb?sslmode=disable
     depends_on:
-      - db
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: docker/Dockerfile
-    ports:
-      - 3000:3000
-    volumes:
-      - ./frontend:/app
-    depends_on:
-      - db
+      - postgresdb
