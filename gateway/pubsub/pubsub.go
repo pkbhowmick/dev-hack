@@ -6,9 +6,10 @@ import (
 
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
-func SendMessage(ctx context.Context, message []byte) error {
+func SendMessage(ctx context.Context, message []byte, isError bool) error {
 	_, span := otel.Tracer("send-to-pubsub").Start(ctx, "pubsub-span")
 	defer span.End()
 	// Connect to RabbitMQ server
@@ -44,6 +45,7 @@ func SendMessage(ctx context.Context, message []byte) error {
 	headers["Content-Type"] = "application/json"
 	headers["Authorization"] = "Bearer your_access_token"
 	headers["traceparent"] = fmt.Sprintf("00-%s-%s-01", span.SpanContext().TraceID().String(), span.SpanContext().SpanID().String())
+	headers["x-error-case"] = isError
 
 	// Publish the message with custom headers
 	err = ch.Publish(
@@ -62,5 +64,6 @@ func SendMessage(ctx context.Context, message []byte) error {
 	}
 
 	fmt.Println("Message sent successfully!")
+	span.SetAttributes(attribute.String("pubsub isSuccess", "true"))
 	return nil
 }

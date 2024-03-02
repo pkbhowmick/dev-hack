@@ -9,6 +9,7 @@ import (
 
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/propagation"
 )
 
@@ -74,10 +75,16 @@ func ListenForMessage() error {
 			traceParent = "unknown"
 		}
 
+		isError, ok := msg.Headers["x-error-case"].(bool)
+		if !ok {
+			isError = false
+		}
+
 		fmt.Printf("Received a message: %s\n", msg.Body)
 		fmt.Printf("Content-Type: %s\n", contentType)
 		fmt.Printf("Authorization: %s\n", authorization)
 		fmt.Printf("TraceContext: %s\n", traceParent)
+		fmt.Println("IsError: ", isError)
 
 		req, err := http.NewRequest("", "", nil)
 		if err != nil {
@@ -90,8 +97,19 @@ func ListenForMessage() error {
 
 		_, span := otel.Tracer("product-service").Start(propCtx, "product-span")
 
+		if isError {
+			span.SetAttributes(
+				attribute.String("productServiceError", "true"),
+				attribute.String("error", "hi, I am an error, fix me :p "),
+			)
+			span.End()
+			continue
+		}
 		time.Sleep(time.Second * 3)
 
+		span.SetAttributes(
+			attribute.String("productServiceSuccess", "true"),
+		)
 		span.End()
 	}
 	return nil
