@@ -1,0 +1,150 @@
+openapi: 3.0.0
+info:
+  version: "1.0"
+  title: DevHack Service
+  description: Service for ecom CRUD operations in devhack.
+  contact:
+    name: devhack
+    url: "https://github.com/pkbhowmick/dev-hack"
+    email: devhack@gmail.com
+servers:
+  - url: "http://localhost:8085"
+    description: local
+tags:
+  - name: ecom
+paths:
+  "/":
+    GET:
+      summary: Healthcheck.
+      description: Healthcheck.
+      operationId: healthcheck
+      tags:
+        - Healthcheck
+      responses:
+        "200":
+          description: Healthcheck succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  serviceName:
+                    type: string
+                    example: EcomService
+                required:
+                  - ok
+                  - serviceName
+  /products:
+    post:
+      summary: Create a product
+      description: To create/add a new product
+      operationId: create-one-product
+      tags:
+        - Create Product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                description:
+                  type: string
+                stock:
+                  type: number
+              required:
+                - name
+                - price
+                - description
+                - stock
+      responses:
+        "200":
+          description: Product creation is succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  productID:
+                    type: string
+                required:
+                  - ok
+                  - message
+                  - productID
+  "/products/{userId}":
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: user id of the respective user to get all the products of them
+    get:
+      summary: Get all the products by user id
+      description: Get all the products by user id
+      operationId: get-all-product-by-userid
+      tags:
+        - Product
+      responses:
+        "200":
+          description: Product fetching is succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  product:
+                    $ref: "#/components/schemas/product"
+                required:
+                  - ok
+                  - message
+                  - product
+components:
+  schemas:
+    product:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 7713b34a-27dc-5347-9fa8-12720f0dddcf
+        name:
+          type: string
+          example: Sample Product Name
+        price:
+          type: number
+          example: 100
+        description:
+          type: string
+          example: sample product
+        stock:
+          type: number
+          example: 1
+        createdAt:
+          type: number
+        updatedAt:
+          type: number
+      required:
+        - id
+        - name
+        - price
+        - description
+        - stock
+        - createdAt
+        - updatedAt
