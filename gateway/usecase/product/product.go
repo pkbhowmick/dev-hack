@@ -2,20 +2,27 @@ package signup
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	productdom "github.com/pkbhowmick/dev-hack/gateway/domain/product"
+	sqlcdb "github.com/pkbhowmick/dev-hack/gateway/infra/sqlc/mysql"
 )
 
-type UserRepository interface {
-	GetUserById(ctx context.Context, id string) error
+type ProductRepository interface {
+	GetUserById(ctx context.Context, userId string) (*sqlcdb.User, error)
 }
 
 type Usecase struct {
-	UserRepository UserRepository
+	ProductRepository ProductRepository
 }
 
 func (uc *Usecase) CreateProduct(ctx context.Context, opts *productdom.CreationOptions, userId string) (string, error) {
-	if err := uc.UserRepository.GetUserById(ctx, userId); err != nil {
+	_, err := uc.ProductRepository.GetUserById(ctx, userId)
+	if err == sql.ErrNoRows {
+		return "", errors.New("not found the user")
+	}
+	if err != nil {
 		return "", err
 	}
 
@@ -25,7 +32,11 @@ func (uc *Usecase) CreateProduct(ctx context.Context, opts *productdom.CreationO
 }
 
 func (uc *Usecase) GetAllProducts(ctx context.Context, userId string) ([]productdom.Product, error) {
-	if err := uc.UserRepository.GetUserById(ctx, userId); err != nil {
+	_, err := uc.ProductRepository.GetUserById(ctx, userId)
+	if err == sql.ErrNoRows {
+		return nil, errors.New("not found the user")
+	}
+	if err != nil {
 		return nil, err
 	}
 

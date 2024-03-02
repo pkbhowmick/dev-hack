@@ -12,7 +12,7 @@
     ```
     {
         "ok": true,
-        "serviceName": "AuthService"
+        "serviceName": "GatewayService"
     }
     ```
 - `POST /signup` (SignUp endpoint):

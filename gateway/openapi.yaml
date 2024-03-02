@@ -33,7 +33,7 @@ paths:
                     example: true
                   serviceName:
                     type: string
-                    example: AuthService
+                    example: GatewayService
                 required:
                   - ok
                   - serviceName
