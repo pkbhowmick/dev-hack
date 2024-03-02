@@ -14,7 +14,7 @@ type response struct {
 func Handler() gin.HandlerFunc {
 	var staticResponse response
 	staticResponse.OK = true
-	staticResponse.ServiceName = "AuthService"
+	staticResponse.ServiceName = "GatewayService"
 
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, &staticResponse)
