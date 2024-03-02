@@ -19,9 +19,12 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 
-	"github.com/pkbhowmick/dev-hack/gateway/middleware"
 	"github.com/pkbhowmick/dev-hack/gateway/presenter/healthcheck"
+	"github.com/pkbhowmick/dev-hack/gateway/presenter/product"
+	"github.com/pkbhowmick/dev-hack/gateway/presenter/signup"
 	"github.com/pkbhowmick/dev-hack/gateway/pubsub"
+	productuc "github.com/pkbhowmick/dev-hack/gateway/usecase/product"
+	signupuc "github.com/pkbhowmick/dev-hack/gateway/usecase/signup"
 )
 
 type TraceConfig struct {
@@ -135,29 +138,26 @@ func productErrorHandler(c *gin.Context) {
 }
 
 func newServer() (*http.Server, error) {
-	// c, err := newDIContainer()
-	// if err != nil {
-	// 	return nil, err
-	// }
+	c, err := newDIContainer()
+	if err != nil {
+		return nil, err
+	}
 
-	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	r.GET("/", middleware.AddTracing("healthHandler", "healthSpan"), healthcheck.Handler())
-	r.POST("/product", middleware.AddTracing("gatewayHandler", "gatewaySpan"), productHandler)
-	r.POST("/product-error", middleware.AddTracing("gatewayHandler", "gatewaySpan"), productErrorHandler)
 
-	// err = c.Invoke(func(
-	// 	signupuc *signupuc.Usecase,
-	// 	productuc *productuc.Usecase,
-	// ) {
-	// 	r.GET("/", middleware.AddTracing("healthHandler", "healthSpan"), healthcheck.Handler())
-	// 	r.POST("/signup", signup.Handler(signupuc))
-	// 	r.POST("/users/:userId/products", product.CreationHandler(productuc))
-	// 	r.GET("/users/:userId/products", product.ListHandler(productuc))
-	// })
-	// if err != nil {
-	// 	return nil, err
-	// }
+	err = c.Invoke(func(
+		signupuc *signupuc.Usecase,
+		productuc *productuc.Usecase,
+	) {
+		r.GET("/", healthcheck.Handler())
+		r.POST("/signup", signup.Handler(signupuc))
+		r.POST("/users/:userId/products", product.CreationHandler(productuc))
+		r.GET("/users/:userId/products", product.ListHandler(productuc))
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &http.Server{Addr: ":8080", Handler: r}, nil
 }

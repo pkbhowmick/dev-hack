@@ -19,9 +19,10 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 
-	"github.com/pkbhowmick/dev-hack/product/middleware"
 	"github.com/pkbhowmick/dev-hack/product/presenter/healthcheck"
+	"github.com/pkbhowmick/dev-hack/product/presenter/product"
 	"github.com/pkbhowmick/dev-hack/product/pubsub"
+	productuc "github.com/pkbhowmick/dev-hack/product/usecase/product"
 )
 
 type TraceConfig struct {
@@ -126,29 +127,25 @@ func run() error {
 }
 
 func newServer() (*http.Server, error) {
-	// c, err := newDIContainer()
-	// if err != nil {
-	// 	return nil, err
-	// }
+	c, err := newDIContainer()
+	if err != nil {
+		return nil, err
+	}
 
-	// gin.SetMode(gin.ReleaseMode)
-	// r := gin.Default()
-
-	// err = c.Invoke(func(
-	// 	productUC *productuc.Usecase,
-	// ) {
-	// 	r.GET("/", healthcheck.Handler())
-
-	// 	r.GET("/products/:userId", product.GetListHandler(productUC))
-	// 	r.POST("/products", product.CreationHandler(productUC))
-	// })
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return &http.Server{Addr: ":8088", Handler: r}, nil
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	r.GET("/", middleware.AddTracing("healthHandler", "healthSpan"), healthcheck.Handler())
 
-	return &http.Server{Addr: ":8088", Handler: r}, nil
+	err = c.Invoke(func(
+		productUC *productuc.Usecase,
+	) {
+		r.GET("/", healthcheck.Handler())
+
+		r.GET("/products/:userId", product.GetListHandler(productUC))
+		r.POST("/products", product.CreationHandler(productUC))
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &http.Server{Addr: ":8080", Handler: r}, nil
 }
